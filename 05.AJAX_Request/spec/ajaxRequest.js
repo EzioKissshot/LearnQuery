@@ -25,6 +25,7 @@ describe('AjaxRequest', function() {
     jasmine.Ajax.uninstall();
   });
 
+  
   it('should make a successful ajax request', function() {
     ajaxReq('/infinum/index', {
       success: this.onSuccessSpy,
@@ -85,7 +86,7 @@ describe('AjaxRequest', function() {
     var context = {
       secretUnicorn: 'Glumpsy'
     };
-
+    // it's diff with onFailure, it need a object, not a string
     var onSuccess = function(data, status, xhr) {
       expect(status).toBe(200);
       expect(data.response).toBe('incredible cool things');
