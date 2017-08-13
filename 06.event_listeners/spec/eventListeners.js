@@ -10,11 +10,11 @@ describe('EventListeners', function() {
     affix('.learn-query-testing #toddler .hidden.toy+h1[class="title"]+span[class="subtitle"]+span[class="subtitle"]+input[name="toyName"][value="cuddle bunny"]+input[class="creature"][value="unicorn"]+.hidden+.infinum[value="awesome cool"]');
 
     methods = {
-      showLove: function() {
+      showLove: function(e) {
         console.log('<3 JavaScript <3');
       },
 
-      giveLove: function() {
+      giveLove: function(e) {
         console.log('==> JavaScript ==>');
         return '==> JavaScript ==>';
       }
@@ -48,7 +48,7 @@ describe('EventListeners', function() {
   it('should be able to add the same callback for two different events to an HTML element', function() {
     eventListener.on(selectedElement, 'click', methods.showLove);
     eventListener.on(selectedElement, 'hover', methods.showLove);
-
+    console.log('3')
     $selectedElement.trigger('click');
     $selectedElement.trigger('hover');
 
@@ -71,7 +71,7 @@ describe('EventListeners', function() {
     eventListener.on(selectedElement, 'click', methods.showLove);
     eventListener.on(selectedElement, 'click', methods.giveLove);
     eventListener.off(selectedElement, 'click', methods.showLove);
-
+    console.log('5')
     $selectedElement.click();
 
     expect(methods.showLove.calls.count()).toEqual(0);
@@ -86,6 +86,7 @@ describe('EventListeners', function() {
     eventListener.on(selectedElement, 'hover', methods.showLove);
 
     eventListener.off(selectedElement, 'click');
+    console.log('6')
 
     $selectedElement.trigger('hover');
     $selectedElement.trigger('click');
