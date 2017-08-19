@@ -10,11 +10,11 @@ describe('EventListeners', function() {
     affix('.learn-query-testing #toddler .hidden.toy+h1[class="title"]+span[class="subtitle"]+span[class="subtitle"]+input[name="toyName"][value="cuddle bunny"]+input[class="creature"][value="unicorn"]+.hidden+.infinum[value="awesome cool"]');
 
     methods = {
-      showLove: function(e) {
+      showLove: function() {
         console.log('<3 JavaScript <3');
       },
 
-      giveLove: function(e) {
+      giveLove: function() {
         console.log('==> JavaScript ==>');
         return '==> JavaScript ==>';
       }
@@ -30,7 +30,8 @@ describe('EventListeners', function() {
   it('should be able to add a click event to an HTML element', function() {
     eventListener.on(selectedElement, 'click', methods.showLove);
 
-    $selectedElement.click();
+    var eClick = new Event('click');
+    selectedElement.dispatchEvent(eClick);
 
     expect(methods.showLove).toHaveBeenCalled();
   });
@@ -39,7 +40,8 @@ describe('EventListeners', function() {
     eventListener.on(selectedElement, 'click', methods.showLove);
     eventListener.on(selectedElement, 'click', methods.showLove);
 
-    $selectedElement.click();
+    var eClick = new Event('click');
+    selectedElement.dispatchEvent(eClick);
 
     expect(methods.showLove.calls.count()).toEqual(2);
   });
@@ -48,9 +50,12 @@ describe('EventListeners', function() {
   it('should be able to add the same callback for two different events to an HTML element', function() {
     eventListener.on(selectedElement, 'click', methods.showLove);
     eventListener.on(selectedElement, 'hover', methods.showLove);
-    console.log('3')
-    $selectedElement.trigger('click');
-    $selectedElement.trigger('hover');
+
+    var eClick = new Event('click');
+    selectedElement.dispatchEvent(eClick);
+
+    var eHover = new Event('hover');
+    selectedElement.dispatchEvent(eHover);
 
     expect(methods.showLove.calls.count()).toEqual(2);
   });
@@ -59,7 +64,8 @@ describe('EventListeners', function() {
     eventListener.on(selectedElement, 'click', methods.showLove);
     eventListener.on(selectedElement, 'click', methods.giveLove);
 
-    $selectedElement.trigger('click');
+    var eClick = new Event('click');
+    selectedElement.dispatchEvent(eClick);
 
     expect(methods.showLove.calls.count()).toEqual(1);
     expect(methods.giveLove.calls.count()).toEqual(1);
@@ -67,12 +73,14 @@ describe('EventListeners', function() {
 
   it('should be able to remove one event handler of an HTML element', function() {
     $selectedElement.off();
-
+    console.log("isEqual")
+    console.log(methods.showLove===methods.showLove)
     eventListener.on(selectedElement, 'click', methods.showLove);
     eventListener.on(selectedElement, 'click', methods.giveLove);
     eventListener.off(selectedElement, 'click', methods.showLove);
-    console.log('5')
-    $selectedElement.click();
+
+    var eClick = new Event('click');
+    selectedElement.dispatchEvent(eClick);
 
     expect(methods.showLove.calls.count()).toEqual(0);
     expect(methods.giveLove.calls.count()).toEqual(1);
@@ -86,10 +94,12 @@ describe('EventListeners', function() {
     eventListener.on(selectedElement, 'hover', methods.showLove);
 
     eventListener.off(selectedElement, 'click');
-    console.log('6')
 
-    $selectedElement.trigger('hover');
-    $selectedElement.trigger('click');
+    var eClick = new Event('click');
+    selectedElement.dispatchEvent(eClick);
+
+    var eHover = new Event('hover');
+    selectedElement.dispatchEvent(eHover);
 
     expect(methods.showLove.calls.count()).toEqual(1);
     expect(methods.giveLove).not.toHaveBeenCalled();
@@ -104,11 +114,11 @@ describe('EventListeners', function() {
 
     eventListener.off(selectedElement);
 
-    var eventHover = new Event('hover');
-    var eventClick = new Event('click');
+    var eClick = new Event('click');
+    selectedElement.dispatchEvent(eClick);
 
-    selectedElement.dispatchEvent(eventClick);
-    selectedElement.dispatchEvent(eventHover);
+    var eHover = new Event('hover');
+    selectedElement.dispatchEvent(eHover);
 
     expect(methods.showLove).not.toHaveBeenCalled();
     expect(methods.giveLove).not.toHaveBeenCalled();
@@ -125,17 +135,23 @@ describe('EventListeners', function() {
 
   it('should delegate an event to elements with a given css class name', function() {
     eventListener.delegate(selectedElement, 'title', 'click', methods.showLove);
+    var titleEl = document.querySelector('.title');
 
-    $('.title').trigger('click');
-
+    var eClick = new Event('click');
+    titleEl.dispatchEvent(eClick);
+    
     expect(methods.showLove.calls.count()).toEqual(1);
   });
 
   it('should not delegate an event to elements without a given css class name', function() {
     eventListener.delegate(selectedElement, 'title', 'click', methods.showLove);
+    var titleEl = document.querySelector('.title');
+    var subtitleEl = document.querySelector('.subtitle');
 
-    $('.subtitle').trigger('click');
-    $('.title').trigger('click');
+    var eClickTitle = new Event('click');
+    var eClickSubtitle = new Event('click');
+    titleEl.dispatchEvent(eClickTitle);
+    subtitleEl.dispatchEvent(eClickSubtitle);
 
     expect(methods.showLove.calls.count()).toEqual(1);
   });
@@ -147,7 +163,8 @@ describe('EventListeners', function() {
     newElement.className = 'new-element-class';
     $selectedElement.append(newElement);
 
-    $(newElement).trigger('click');
+    var eClick = new Event('click');
+    newElement.dispatchEvent(eClick);
 
     expect(methods.showLove.calls.count()).toEqual(1);
   });
@@ -161,7 +178,8 @@ describe('EventListeners', function() {
 
     $('.title').append(newElement);
 
-    $(newElement).trigger('click');
+    var eClick = new Event('click');
+    newElement.dispatchEvent(eClick);
 
     expect(methods.showLove.calls.count()).toEqual(1);
   });
@@ -172,15 +190,18 @@ describe('EventListeners', function() {
 
     eventListener.delegate(selectedElement, 'target', 'click', methods.showLove);
 
-    $selectedElement.click();
+    var eClick = new Event('click');
+    selectedElement.dispatchEvent(eClick);
 
     expect(methods.showLove.calls.count()).toEqual(0);
   });
 
   it('should trigger delegated event handler multiple times if event happens on multiple elements', function() {
     eventListener.delegate(selectedElement, 'subtitle', 'click', methods.showLove);
+    var subtitleEl = document.querySelector('.subtitle');
 
-    $('.subtitle').trigger('click');
+    var eClick = new Event('click');
+    subtitleEl.dispatchEvent(eClick);
 
     expect(methods.showLove.calls.count()).toEqual(2);
   });
@@ -193,8 +214,9 @@ describe('EventListeners', function() {
 
     eventListener.on(elementA, 'click', methods.showLove);
     eventListener.on(elementB, 'click', methods.giveLove);
-
-    $(elementA).trigger('click');
+  
+    var eClick = new Event('click');
+    elementA.dispatchEvent(eClick);
 
     expect(methods.showLove).toHaveBeenCalled();
     expect(methods.giveLove).not.toHaveBeenCalled();

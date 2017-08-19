@@ -10,16 +10,16 @@ function geneEventListener(event) {
   let type = Object.keys(this.handlers).find(type=>type===event.type);
   if (!type) return;
   let functions = this.handlers[type];
-  functions.forEach(f=>f.apply(this,event));
+  functions.forEach(f=>f.call(this,event));
 }
 
 // cache elements which bound event listener
-let Cache = function () {
+let _Cache = function () {
   this.elements = [];
   this.uid = 1;
 };
 
-Cache.prototype = {
+_Cache.prototype = {
   constructor:Cache,
   init:function (element) {
     if(!element.uid) element.uid = this.uid++;
@@ -36,7 +36,12 @@ Cache.prototype = {
   removeCallback:function (uid, type, callback) {
     if(this.get(uid) && this.get(uid).handlers[type]) {
       let functions = this.get(uid).handlers[type];
-      functions.splice(functions.findIndex(callback),1)
+      const index = functions.findIndex(f=>f===callback);
+      if(index===-1){
+        console.log("no such function");
+        return;
+      }
+      functions.splice(index,1)
     }
   },
   // return element or undefined
@@ -51,7 +56,7 @@ Cache.prototype = {
 * So use element.handlers = {'click':[listener1, listener2, ...], 'hover':[...], ...}
 * */
 let eventListener = (function() {
-  let cache = new Cache();
+  let cache = new _Cache();
 
   function add (element, type, callback){
     cache.init(element);
