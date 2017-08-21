@@ -141,7 +141,10 @@ let eventListener = (function () {
   function trigger(element, eventType) {
     console.log(element);
     console.log(eventType);
-    let event = new Event(eventType);
+    let event = new Event(eventType,{
+      'bubbles': true,
+      'cancelable': true
+    });
     element.dispatchEvent(event);
   }
 
