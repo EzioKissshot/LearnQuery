@@ -156,6 +156,7 @@ let eventListener = (function () {
     on,
     off,
     trigger,
-    delegate
+    delegate,
+    addDelegation
   }
 })();
