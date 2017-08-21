@@ -1,20 +1,20 @@
-var cssClass = (function() {
+var cssClass = (function () {
   'use strict';
 
-  function addClass(e, className){
+  function addClass(e, className) {
     e.classList.add(className);
   }
 
 
-  function removeClass(e, className){
+  function removeClass(e, className) {
     e.classList.remove(className);
   }
 
-  function toggleClass(e, className){
+  function toggleClass(e, className) {
     e.classList.toggle(className);
   }
 
-  function hasClass(e, className){
+  function hasClass(e, className) {
     return e.classList.contains(className);
   }
 
