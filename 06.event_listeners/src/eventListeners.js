@@ -7,10 +7,36 @@ function isEmpty(str) {
 // listener use to bind to DOM element, call corresponding functions when event firing.
 function geneEventListener(event) {
   console.log('gene');
-  let type = Object.keys(this.handlers).find(type=>type===event.type);
-  if (!type) return;
-  let functions = this.handlers[type];
-  functions.forEach(f=>f.call(this,event));
+  let type = Object.keys(this.handlers).find(type => type === event.type);
+  let deleType = Object.keys(this.deleHandlers).find(type => type === event.type);
+
+  let target = event.target;
+  let ctarget = event.currentTarget;
+
+  debugger;
+
+  while(deleType && target!==ctarget){
+    let callbacks = this.deleHandlers[deleType];
+    callbacks.forEach(fWrapper=>{
+      if(findTarget(this, fWrapper.selector, target)){
+        fWrapper.callback.call(event.target, event);
+      }
+    });
+    target = target.parentNode;
+  }
+
+  if (type) {
+    let functions = this.handlers[type];
+    functions.forEach(f => f.call(this, event));
+  }
+}
+
+function findTarget(agent, selector, target){
+  let node = agent.querySelectorAll(selector);
+  for(let i = 0; i < node.length; i++){
+    if(node[i]===target) return true;
+  }
+
 }
 
 // cache elements which bound event listener
@@ -20,10 +46,11 @@ let _Cache = function () {
 };
 
 _Cache.prototype = {
-  constructor:Cache,
+  constructor:_Cache,
   init:function (element) {
     if(!element.uid) element.uid = this.uid++;
     if(!element.handlers) element.handlers = {};
+    if(!element.deleHandlers) element.deleHandlers = {};
     if(!element.lqListener) element.lqListener = geneEventListener.bind(element);
     this.elements.push(element);
   },
@@ -67,6 +94,19 @@ let eventListener = (function() {
     (element.handlers[type]).push(callback);
   }
 
+  function addDelegation (element, selector, type, callback){
+    cache.init(element);
+    element.addEventListener(type,element.lqListener);
+    if(!element.deleHandlers[type]){
+      element.deleHandlers[type] = [];
+    }
+    (element.deleHandlers[type]).push({callback, selector});
+  }
+
+  function addClassDelegation(element, className, type, callback){
+    addDelegation(element, '.'+className, type, callback);
+  }
+
   // remove a type of event listeners, should remove the callback array and remove DOM's event listener
   function removeType (element, type) {
     element.removeEventListener(type,element.lqListener);
@@ -93,13 +133,26 @@ let eventListener = (function() {
         removeType(element,type);
       }
     }
-    console.log('off')
+    // console.log('off')
     if(!isEmpty(type)&&!callback) removeType(element,type);
     if(!isEmpty(type) && (typeof callback === 'function')) removeCallback(element,type,callback);
   }
 
+  function trigger(element, eventType){
+    console.log(element);
+    console.log(eventType);
+    let event = new Event(eventType);
+    element.dispatchEvent(event);
+  }
+
+  function delegate(monitoredElement, className, event, callback){
+    addClassDelegation(monitoredElement,className,event,callback)
+  }
+
   return {
     on,
-    off
+    off,
+    trigger,
+    delegate
   }
 })();
